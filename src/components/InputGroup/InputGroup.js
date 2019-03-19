@@ -17,7 +17,7 @@ class InputGroup extends React.Component {
 
   placeSubmitHandler = () => {
     if(this.state.placeName.trim() !== '') {
-      this.props.placeAdded(this.state.placeName);
+      this.props.onPlaceAdded(this.state.placeName);
       this.setState({placeName: ''});
     }
   };
