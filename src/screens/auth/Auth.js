@@ -8,9 +8,11 @@ import MainText from '../../components/UI/MainText/MainText';
 import background from '../../assets/background.jpg';
 
 class AuthScreen extends Component {
-    loginHandler = () => {
-        startMainTabs();
-    };
+
+
+  loginHandler = () => {
+    startMainTabs();
+  };
 
   render() {
     return (

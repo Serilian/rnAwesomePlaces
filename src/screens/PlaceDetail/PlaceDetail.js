@@ -1,41 +1,35 @@
-import React, { Component } from "react";
-import {
-  View,
-  Image,
-  Text,
-  Button,
-  StyleSheet,
-  TouchableOpacity
-} from "react-native";
-import { connect } from "react-redux";
-
+import React from "react";
+import { View, StyleSheet, TouchableOpacity, Image, Text } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { deletePlace } from "../../store/actions/index";
+import {connect} from 'react-redux';
+import {deletePlace} from '../../store/actions/index';
 
-class PlaceDetail extends Component {
-  placeDeletedHandler = () => {
-    this.props.onDeletePlace(this.props.selectedPlace.key);
-    this.props.navigator.pop();
-  }
+const PlaceDetail = ({ selectedPlace, onDeletePlace, navigator}) => {
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <View>
-          <Image source={this.props.selectedPlace.image} style={styles.placeImage} />
-          <Text style={styles.placeName}>{this.props.selectedPlace.name}</Text>
-        </View>
-        <View>
-          <TouchableOpacity onPress={this.placeDeletedHandler}>
-            <View style={styles.deleteButton}>
-              <Icon size={30} name="ios-trash" color="red" />
-            </View>
+  const deleteItemHandler = (key) => {
+    onDeletePlace(key);
+    navigator.pop({
+      animated: true
+    });
+  };
+
+  return (
+
+    <View style={styles.container}>
+      <Image style={styles.placeImage} source={selectedPlace ? selectedPlace.image : null}/>
+      <Text style={styles.placeName}>{selectedPlace.name}</Text>
+
+      <View style={styles.buttonList}>
+        <View style={styles.deleteIcon}>
+          <TouchableOpacity onPress={()=>deleteItemHandler(selectedPlace.key)}>
+            <Icon size={30} name={"ios-trash"} color={"red"}/>
           </TouchableOpacity>
         </View>
       </View>
-    );
-  }
-}
+    </View>
+
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -46,19 +40,24 @@ const styles = StyleSheet.create({
     height: 200
   },
   placeName: {
-    fontWeight: "bold",
+    fontWeight: "400",
     textAlign: "center",
     fontSize: 28
   },
-  deleteButton: {
-    alignItems: "center"
+  buttonList: {
+    flexDirection: "row",
+    justifyContent: "center"
+  },
+  deleteIcon: {
+    margin: 15
+  },
+  closeButton: {
+    marginTop: 15
   }
 });
 
-const mapDispatchToProps = dispatch => {
-  return {
-    onDeletePlace: key => dispatch(deletePlace(key))
-  };
-};
+const mapDispatchToProps = (dispatch) => { return {
+  onDeletePlace: (key)=> dispatch(deletePlace(key))
+}};
 
-export default connect(null, mapDispatchToProps)(PlaceDetail);
+export default connect(null,mapDispatchToProps)(PlaceDetail);
