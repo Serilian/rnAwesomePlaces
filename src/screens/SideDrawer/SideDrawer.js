@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import {
+  Platform,
   View,
   Text,
   Dimensions,
@@ -20,7 +21,7 @@ class SideDrawer extends Component {
         <TouchableOpacity>
           <View style={styles.drawerItem}>
             <Icon
-              name="ios-log-out"
+              name={Platform.OS === 'android' ? 'md-log-out': "ios-log-out"}
               size={30}
               color="#aaa"
               style={styles.drawerItemIcon}

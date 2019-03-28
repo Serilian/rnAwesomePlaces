@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Image, Text } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import {connect} from 'react-redux';
 import {deletePlace} from '../../store/actions/index';
+import {Platform} from "react-native";
 
 const PlaceDetail = ({ selectedPlace, onDeletePlace, navigator}) => {
 
@@ -22,7 +23,7 @@ const PlaceDetail = ({ selectedPlace, onDeletePlace, navigator}) => {
       <View style={styles.buttonList}>
         <View style={styles.deleteIcon}>
           <TouchableOpacity onPress={()=>deleteItemHandler(selectedPlace.key)}>
-            <Icon size={30} name={"ios-trash"} color={"red"}/>
+            <Icon size={30} name={Platform.OS === 'android' ? 'md-trash' :"ios-trash"} color={"red"}/>
           </TouchableOpacity>
         </View>
       </View>
