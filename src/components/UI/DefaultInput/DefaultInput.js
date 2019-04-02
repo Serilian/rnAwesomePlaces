@@ -8,7 +8,7 @@ const DefaultInput = (props) => {
       placeholder={"Place name"}
       underlineColorAndroid={"#000"}
       {...props}
-      style={[styles.inputField, props.style]}
+      style={[styles.inputField, props.style, !props.valid && props.touched ? styles.invalid : null ]}
     />
   );
 };
@@ -23,5 +23,9 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 15,
     marginBottom: 2
-  }
+  },
+  invalid: {
+  backgroundColor: '#f9c0c0',
+    borderColor: 'red'
+}
 });

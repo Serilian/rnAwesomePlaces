@@ -1,64 +1,116 @@
-import React from "react";
-import { View, StyleSheet, TouchableOpacity, Image, Text } from "react-native";
+import React, { Component } from "react";
+import {
+  View,
+  Image,
+  Text,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  Dimensions
+} from "react-native";
+import { connect } from "react-redux";
+
 import Icon from "react-native-vector-icons/Ionicons";
-import {connect} from 'react-redux';
-import {deletePlace} from '../../store/actions/index';
-import {Platform} from "react-native";
+import { deletePlace } from "../../store/actions/index";
 
-const PlaceDetail = ({ selectedPlace, onDeletePlace, navigator}) => {
+class PlaceDetail extends Component {
+  state = {
+    viewMode: "portrait"
+  };
 
-  const deleteItemHandler = (key) => {
-    onDeletePlace(key);
-    navigator.pop({
-      animated: true
+  constructor(props) {
+    super(props);
+    Dimensions.addEventListener("change", this.updateStyles);
+  }
+
+  componentWillUnmount() {
+    Dimensions.removeEventListener("change", this.updateStyles);
+  }
+
+  updateStyles = dims => {
+    this.setState({
+      viewMode: dims.window.height > 500 ? "portrait" : "landscape"
     });
   };
 
-  return (
+  placeDeletedHandler = () => {
+    this.props.onDeletePlace(this.props.selectedPlace.key);
+    this.props.navigator.pop();
+  };
 
-    <View style={styles.container}>
-      <Image style={styles.placeImage} source={selectedPlace ? selectedPlace.image : null}/>
-      <Text style={styles.placeName}>{selectedPlace.name}</Text>
+  render() {
 
-      <View style={styles.buttonList}>
-        <View style={styles.deleteIcon}>
-          <TouchableOpacity onPress={()=>deleteItemHandler(selectedPlace.key)}>
-            <Icon size={30} name={Platform.OS === 'android' ? 'md-trash' :"ios-trash"} color={"red"}/>
-          </TouchableOpacity>
+    return (
+
+      <View
+        style={[
+          styles.container,
+          this.state.viewMode === "portrait"
+            ? styles.portraitContainer
+            : styles.landscapeContainer
+        ]}
+      >
+        <View style={styles.subContainer}>
+          <Image
+            source={this.props.selectedPlace.image}
+            style={styles.placeImage}
+          />
         </View>
-      </View>
-    </View>
-
-  );
-};
+        <View style={styles.subContainer}>
+          <View>
+            <Text style={styles.placeName}>{this.props.selectedPlace.name}</Text>
+          </View>
+          <View>
+            <TouchableOpacity onPress={this.placeDeletedHandler}>
+              <View style={styles.deleteButton}>
+                <Icon
+                  size={30}
+                  name={Platform.OS === "android" ? "md-trash" : "ios-trash"}
+                  color="red"
+                />
+        </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
-    margin: 22
+    margin: 22,
+    flex: 1
+  },
+  portraitContainer: {
+    flexDirection: "column"
+  },
+  landscapeContainer: {
+    flexDirection: "row"
   },
   placeImage: {
     width: "100%",
     height: 200
   },
   placeName: {
-    fontWeight: "400",
+    fontWeight: "bold",
     textAlign: "center",
     fontSize: 28
   },
-  buttonList: {
-    flexDirection: "row",
-    justifyContent: "center"
+  deleteButton: {
+    alignItems: "center"
   },
-  deleteIcon: {
-    margin: 15
-  },
-  closeButton: {
-    marginTop: 15
+  subContainer: {
+    flex: 1
   }
+
 });
 
-const mapDispatchToProps = (dispatch) => { return {
-  onDeletePlace: (key)=> dispatch(deletePlace(key))
-}};
+const mapDispatchToProps = dispatch => {
+  return {
+    onDeletePlace: key => dispatch(deletePlace(key))
+  };
+};
 
-export default connect(null,mapDispatchToProps)(PlaceDetail);
+export default connect(null, mapDispatchToProps)(PlaceDetail);
