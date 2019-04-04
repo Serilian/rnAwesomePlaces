@@ -13,6 +13,9 @@ const validate = (val, rules, connectedValue) => {
       case "isEqualTo" :
         isValid = isValid && equalToValidator(val, connectedValue[rule]);
         break;
+      case "notEmpty":
+        isValid = isValid && notEmptyValidator(val, rules[rule]);
+        break;
       default:
         isValid = true;
     }
@@ -31,6 +34,10 @@ const minLengthValidator = (val, minLength) => {
 
 const equalToValidator = (val, testVal) => {
   return val === testVal;
+};
+
+const notEmptyValidator = (val)=> {
+  return val.length > 0;
 };
 
 export default validate;
