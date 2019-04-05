@@ -13,24 +13,70 @@ class PickLocation extends Component {
         longitude: 19.56823,
         latitudeDelta: 0.0122,
         longitudeDelta:
-          Dimensions.get('window').width /
-          Dimensions.get('window').height *
+          Dimensions.get("window").width /
+          Dimensions.get("window").height *
           0.0122
-      }
-    }
+      },
+      locationChoosen: true
+    };
   }
 
 
+  pickLocationHandler = (event) => {
+    const cords = event.nativeEvent.coordinate;
+    this.map.animateToRegion({
+      ...this.state.focusedLocation,
+      latitude: cords.latitude,
+      longitude: cords.longitude
+    });
+    this.setState(prevState => {
+      return {
+        focusedLocation: {
+          ...prevState.focusedLocation,
+          latitude: cords.latitude,
+          longitude: cords.longitude
+        },
+        locationChoosen: true
+      };
+    });
+  };
+
+
+  getLocationHandler = () => {
+    navigator.geolocation.getCurrentPosition((pos)=>{
+      const coordsEvent = {
+        nativeEvent: {
+          coordinate: {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          }
+        }
+      };
+      this.pickLocationHandler(coordsEvent);
+    }, error => alert('Fetching location failed - please type in address manually'));
+  };
+
+
   render() {
+
+    let marker = null;
+
+
+    if(this.state.locationChoosen) {
+      marker = (<MapView.Marker coordinate={this.state.focusedLocation}/>)
+    }
+
     return (
       <View style={styles.container}>
         <MapView
           style={styles.map}
           initialRegion={this.state.focusedLocation}
-        />
+          onPress={this.pickLocationHandler}
+          ref={ref=>{this.map = ref}}
+        >{marker}</MapView>
 
         <View style={styles.button}>
-          <Button title="Locate Me" onPress={() => alert('Pick Location!')} />
+          <Button title="Locate Me" onPress={this.getLocationHandler}/>
         </View>
       </View>
     );
