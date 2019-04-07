@@ -1,7 +1,15 @@
 import placeImage from "../../assets/beautiful-place.jpg";
 
 const initialState = {
-  places: []
+  places: [{
+    key: "1",
+    name: "Tee",
+    image: placeImage,
+    location: {
+      latitude: 37.421998333333335,
+      longitude: -122.08400000000002
+    }
+  }]
 };
 
 const reducer = (state = initialState, action) => {
@@ -13,8 +21,10 @@ const reducer = (state = initialState, action) => {
         places: state.places.concat({
           key: `${Math.random()}`,
           name: action.placeName,
-          image: placeImage,
-          location: action.location
+          image: {
+            uri: action.image.uri
+          } ,
+          location: action.location,
         })
       };
     case "DELETE_PLACE":
