@@ -22,6 +22,10 @@ class SharePlace extends Component {
           validationRules: {
             notEmpty: true
           }
+        },
+        location: {
+          value: null,
+          valid: false
         }
       }
     };
@@ -45,7 +49,7 @@ class SharePlace extends Component {
 
   addPlaceHandler = () => {
     if (this.state.controls.placeName.value.trim() !== "") {
-      this.props.onAddPlace(this.state.controls.placeName.value);
+      this.props.onAddPlace(this.state.controls.placeName.value, this.state.controls.location.value);
     }
   };
 
@@ -64,6 +68,19 @@ class SharePlace extends Component {
     }})
   };
 
+  locationPickHandler = (location) => {
+    this.setState(prevState => ({
+      controls:
+        {
+          ...prevState.controls,
+          location: {
+            value: location,
+            valid: true
+          }
+        }
+    }))
+  };
+
   render() {
     return (
       <ScrollView>
@@ -74,7 +91,7 @@ class SharePlace extends Component {
             </Heading1Text>
           </MainText>
           <PickImage style={styles.placeholder}/>
-          <PickLocation/>
+          <PickLocation onLocationPick={this.locationPickHandler}/>
           <PlaceInput
             placeName={this.state.controls.placeName.value}
             onChangeText={this.placeNameChangedHandler}
@@ -84,7 +101,7 @@ class SharePlace extends Component {
           />
           <View style={styles.button}>
             <Button title={"Share the place"} onPress={this.addPlaceHandler}
-            disabled={!this.state.controls.placeName.isValid}
+            disabled={!this.state.controls.placeName.isValid || !this.state.controls.location.valid}
             />
       </View>
         </View>
@@ -114,7 +131,7 @@ const styles = StyleSheet.create({
 });
 const mapDispatchToProps = dispatch => {
   return {
-    onAddPlace: placeName => dispatch(addPlace(placeName))
+    onAddPlace: (placeName, location) => dispatch(addPlace(placeName, location))
   };
 };
 

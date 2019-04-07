@@ -3,13 +3,13 @@ import {
   View,
   Image,
   Text,
-  Button,
   StyleSheet,
   TouchableOpacity,
   Platform,
   Dimensions
 } from "react-native";
 import { connect } from "react-redux";
+import MapView from "react-native-maps";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import { deletePlace } from "../../store/actions/index";
@@ -58,6 +58,21 @@ class PlaceDetail extends Component {
           />
         </View>
         <View style={styles.subContainer}>
+          <MapView style={styles.map}
+                   initialRegion={
+                     {
+                       ...this.props.selectedPlace.location,
+                       latitudeDelta: 0.0122,
+                       longitudeDelta:
+                         Dimensions.get("window").width /
+                         Dimensions.get("window").height *
+                         0.0122
+                     }
+                   }>
+            <MapView.Marker coordinate={this.props.selectedPlace.location}/>
+          </MapView>
+        </View>
+        <View style={styles.subContainer}>
           <View>
             <Text style={styles.placeName}>{this.props.selectedPlace.name}</Text>
           </View>
@@ -69,11 +84,13 @@ class PlaceDetail extends Component {
                   name={Platform.OS === "android" ? "md-trash" : "ios-trash"}
                   color="red"
                 />
-        </View>
-              </TouchableOpacity>
-            </View>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
+
+      </View>
+
     );
   }
 }
@@ -103,8 +120,10 @@ const styles = StyleSheet.create({
   },
   subContainer: {
     flex: 1
+  },
+  map: {
+   ...StyleSheet.absoluteFillObject
   }
-
 });
 
 const mapDispatchToProps = dispatch => {

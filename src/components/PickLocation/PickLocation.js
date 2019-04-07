@@ -39,6 +39,10 @@ class PickLocation extends Component {
         locationChoosen: true
       };
     });
+    this.props.onLocationPick({
+      latitude: cords.latitude,
+      longitude: cords.longitude
+    })
   };
 
 
