@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ScrollView, View, Button, StyleSheet } from "react-native";
+import { ScrollView, View, Button, StyleSheet, ActivityIndicator } from "react-native";
 import { connect } from "react-redux";
 import { addPlace } from "../../store/actions";
 import MainText from "../../components/UI/MainText/MainText";
@@ -37,7 +37,7 @@ class SharePlace extends Component {
   }
 
   static navigatorStyle = {
-    navBarButtonColor: 'orange'
+    navBarButtonColor: "orange"
   };
 
 
@@ -63,17 +63,19 @@ class SharePlace extends Component {
 
 
   placeNameChangedHandler = val => {
-    this.setState(prevState => { return {
-      controls: {
-        ...prevState.controls,
-        placeName: {
-          ...prevState.controls.placeName,
-          value: val,
-          touched: true,
-          isValid: validate(val, prevState.controls.placeName.validationRules)
+    this.setState(prevState => {
+      return {
+        controls: {
+          ...prevState.controls,
+          placeName: {
+            ...prevState.controls.placeName,
+            value: val,
+            touched: true,
+            isValid: validate(val, prevState.controls.placeName.validationRules)
+          }
         }
-      }
-    }})
+      };
+    });
   };
 
   locationPickHandler = (location) => {
@@ -86,22 +88,36 @@ class SharePlace extends Component {
             valid: true
           }
         }
-    }))
+    }));
   };
 
   imagePickedHandler = image => {
-    this.setState(prevState=> { return {
-      controls: {
-        ...prevState.controls,
-        image: {
-          value: image,
-          valid: true
+    this.setState(prevState => {
+      return {
+        controls: {
+          ...prevState.controls,
+          image: {
+            value: image,
+            valid: true
+          }
         }
-      }
-    }})
+      };
+    });
   };
 
   render() {
+
+    let submitButton = (<Button title={"Share the place"} onPress={this.addPlaceHandler}
+                                disabled={
+                                  !this.state.controls.placeName.isValid ||
+                                  !this.state.controls.location.valid ||
+                                  !this.state.controls.image.valid}
+    />);
+
+    if (this.props.isLoading) {
+      submitButton = (<ActivityIndicator />);
+    }
+
     return (
       <ScrollView>
         <View style={styles.container}>
@@ -110,7 +126,7 @@ class SharePlace extends Component {
               Image Preview
             </Heading1Text>
           </MainText>
-          <PickImage onImagePicked={this.imagePickedHandler} />
+          <PickImage onImagePicked={this.imagePickedHandler}/>
           <PickLocation onLocationPick={this.locationPickHandler}/>
           <PlaceInput
             placeName={this.state.controls.placeName.value}
@@ -120,19 +136,13 @@ class SharePlace extends Component {
 
           />
           <View style={styles.button}>
-            <Button title={"Share the place"} onPress={this.addPlaceHandler}
-            disabled={
-            !this.state.controls.placeName.isValid ||
-            !this.state.controls.location.valid ||
-            !this.state.controls.image.valid}
-            />
-      </View>
+            {submitButton}
+          </View>
         </View>
       </ScrollView>
     );
   }
 }
-
 
 
 const styles = StyleSheet.create({
@@ -158,4 +168,10 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-export default connect(null, mapDispatchToProps)(SharePlace);
+const mapStateToProps = state => {
+  return {
+    isLoading: state.ui.isLoading
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SharePlace);
