@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Animated, TouchableOpacity, View, StyleSheet, Text } from "react-native";
 import { connect } from "react-redux";
 import List from "../../components/List/List";
+import { getPlaces } from "../../store/actions/places";
 
 class FindPlace extends Component {
   constructor(props) {
@@ -31,13 +32,15 @@ class FindPlace extends Component {
     }
   };
 
+  componentDidMount() {
+    this.props.onGetPlaces();
+  }
+
 
   itemSelectedHandler = (key) => {
     const findSelectedPlace = this.props.places.find(place => {
       return place.key === key;
     });
-
-
     this.props.navigator.push({
       screen: "awesome-places.PlaceDetailsScreen",
       title: findSelectedPlace.name,
@@ -54,7 +57,7 @@ class FindPlace extends Component {
       toValue: 1,
       duration: 500,
       useNativeDriver: true
-    }).start()
+    }).start();
   };
 
   placesSearch = () => {
@@ -62,7 +65,7 @@ class FindPlace extends Component {
       toValue: 0,
       duration: 500,
       useNativeDriver: true
-    }).start(()=> {
+    }).start(() => {
       this.setState({
         placesLoaded: true
       });
@@ -86,8 +89,8 @@ class FindPlace extends Component {
             transform: [
               {
                 scale: this.state.removeAnim.interpolate({
-                  inputRange: [0,1],
-                  outputRange: [12,1]
+                  inputRange: [0, 1],
+                  outputRange: [12, 1]
                 })
               }
             ]
@@ -117,6 +120,12 @@ const mapStateToProps = (state) => {
   };
 };
 
+const mapDispatchToProps = (dispatch)=> {
+  return {
+    onGetPlaces: ()=> dispatch(getPlaces())
+  }
+};
+
 const styles = StyleSheet.create({
   searchButton: {
     borderColor: "orange",
@@ -139,4 +148,4 @@ const styles = StyleSheet.create({
   listContainer: {}
 });
 
-export default connect(mapStateToProps, null)(FindPlace);
+export default connect(mapStateToProps, mapDispatchToProps)(FindPlace);
