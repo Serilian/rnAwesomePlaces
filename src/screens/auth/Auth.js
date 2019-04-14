@@ -5,9 +5,9 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Keyboard,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  ActivityIndicator
 } from "react-native";
-import startMainTabs from "../../screens/MainTabs/MainTabs";
 import ButtonWithBackground from "../../components/UI/ButtonWithBackground/ButtonWithBackground";
 import DefaultInput from "../../components/UI/DefaultInput/DefaultInput";
 import Heading1Text from "../../components/UI/Heading1Text/Heading1Text";
@@ -57,13 +57,12 @@ class AuthScreen extends Component {
   }
 
 
-  loginHandler = () => {
+  authHandler = () => {
     const authData = {
       email: this.state.controls.email.value,
       password: this.state.controls.password.value
     };
-    this.props.onLogin(authData);
-    startMainTabs();
+    this.props.onTryAuth(authData, this.state.authMode);
   };
 
   componentWillUnmount() {
@@ -82,6 +81,10 @@ class AuthScreen extends Component {
         authMode: prevState.authMode === "login" ? "signup" : "login"
       };
     });
+  };
+
+  capitalize = (s) => {
+    return s.charAt(0).toUpperCase() + s.slice(1)
   };
 
 
@@ -143,9 +146,22 @@ class AuthScreen extends Component {
     let headingText = null;
     let confirmPasswordControl = null;
 
+    let submitButton = (<ButtonWithBackground
+      onPress={this.authHandler}
+      color={"#29aaf4"}
+      disabled={
+        !this.state.controls.password.isValid ||
+        !this.state.controls.confirmPassword.isValid && this.state.authMode === "signup" ||
+        !this.state.controls.email.isValid}
+    >{this.capitalize(this.state.authMode)}</ButtonWithBackground>);
+
+    if(this.props.isLoading) {
+      submitButton = (<ActivityIndicator/>)
+    }
+
     if (this.state.viewMode === "portrait") {
       headingText = (<MainText>
-        <Heading1Text>Please log in</Heading1Text>
+        <Heading1Text>Please {this.state.authMode}</Heading1Text>
       </MainText>);
     }
 
@@ -219,14 +235,7 @@ class AuthScreen extends Component {
               </View>
             </View>
           </TouchableWithoutFeedback>
-          <ButtonWithBackground
-            onPress={this.loginHandler}
-            color={"#29aaf4"}
-            disabled={
-              !this.state.controls.password.isValid ||
-              !this.state.controls.confirmPassword.isValid && this.state.authMode === "signup" ||
-              !this.state.controls.email.isValid}
-          >Login</ButtonWithBackground>
+          {submitButton}
 
         </KeyboardAvoidingView>
       </ImageBackground>
@@ -236,11 +245,18 @@ class AuthScreen extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onLogin: (authData) => dispatch(tryAuth(authData))
+    onTryAuth: (authData, authMode) => dispatch(tryAuth(authData, authMode))
   };
 };
 
-export default connect(null, mapDispatchToProps)(AuthScreen);
+
+const mapStateToProps = state => {
+  return {
+    isLoading: state.ui.isLoading
+  }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AuthScreen);
 
 const styles = StyleSheet.create({
   container: {
