@@ -1,3 +1,4 @@
+import { AUTH_SET_TOKEN } from "./ActionTypes";
 import { uiStartLoading, uiStopLoading } from "./ui";
 import startMainTabs from "../../screens/MainTabs/MainTabs";
 import { API_KEY } from "../../firebase.properties";
@@ -36,9 +37,10 @@ export const onAuth = (authData, authMode) => {
       .then(resp => resp.json())
       .then(data => {
           dispatch(uiStopLoading());
-          if (data.error) {
-            alert(data.error.message);
+          if (!data.idToken) {
+            alert("Authentication failed");
           } else {
+            dispatch(authSetToken(data.idToken));
             startMainTabs();
           }
         }
@@ -46,3 +48,9 @@ export const onAuth = (authData, authMode) => {
   };
 };
 
+export const authSetToken = (token) => {
+  return {
+    type: AUTH_SET_TOKEN,
+    token: token
+  };
+};

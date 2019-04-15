@@ -1,21 +1,27 @@
-import { ADD_PLACE, DELETE_PLACE, REMOVE_PLACE, SET_PLACES } from "./ActionTypes";
+import { REMOVE_PLACE, SET_PLACES } from "./ActionTypes";
 import { uiStopLoading, uiStartLoading } from "./index";
 
 export const addPlace = (placeName, location, image) => {
-    return dispatch => {
+    return (dispatch, getState) => {
       dispatch(uiStartLoading());
+
+      const token = getState().auth.token;
+
       fetch(" https://us-central1-rnplaces-ee771.cloudfunctions.net/storeImage", {
         method: "POST",
         body: JSON.stringify({ image: image.base64 })
       }).then(resp => resp.json())
         .then(resp => {
+          if (resp.error) {
+            alert(resp.error);
+          } else {
             const placeData = {
               name: placeName,
               location: location,
               image: resp.imageUrl
             };
             console.log(placeData);
-            return fetch("https://rnplaces-ee771.firebaseio.com/places.json", {
+            return fetch(`https://rnplaces-ee771.firebaseio.com/places.json?auth=${token}`, {
               method: "post",
               headers: {
                 "Content-Type": "application/json"
@@ -32,18 +38,20 @@ export const addPlace = (placeName, location, image) => {
                 dispatch(uiStopLoading());
               });
           }
-        ).catch(err => {
-        dispatch(uiStopLoading());
-        alert(err);
-      });
+        })
+        .catch(err => {
+          dispatch(uiStopLoading());
+          alert(err);
+        });
     };
   }
 ;
 
 export const deletePlace = (key) => {
-  return dispatch => {
+  return (dispatch, getState) => {
     dispatch(removePlace(key));
-    fetch(`https://rnplaces-ee771.firebaseio.com/places/${key}.json`, {
+    const token = getState().auth.token;
+    fetch(`https://rnplaces-ee771.firebaseio.com/places/${key}.json?auth=${token}`, {
       method: "delete",
       headers: {
         "Content-Type": "application/json"
@@ -54,7 +62,11 @@ export const deletePlace = (key) => {
     })
       .then(resp => resp.json())
       .then(resp => {
-        console.log(resp);
+        if (resp.error) {
+          alert(resp.error);
+        } else {
+          console.log(resp);
+        }
         dispatch(uiStopLoading());
       });
   };
@@ -65,7 +77,7 @@ export const removePlace = key => {
   return {
     type: REMOVE_PLACE,
     key: key
-  }
+  };
 };
 
 
@@ -77,29 +89,35 @@ export const setPlaces = (places) => {
 };
 
 export const getPlaces = () => {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const token = getState().auth.token;
     dispatch(uiStartLoading());
-    fetch("https://rnplaces-ee771.firebaseio.com/places.json")
+    fetch(`https://rnplaces-ee771.firebaseio.com/places.json?auth=${token}`)
       .catch(err => {
         dispatch(uiStopLoading());
         alert(err);
       })
       .then(resp => resp.json())
       .then(resp => {
-        console.log(resp);
-        let places = [];
-        for (let key in resp) {
-          places.push({
-            ...resp[key],
-            image: {
-              uri: resp[key].image
-            },
-            key: key
-          });
+        if (resp.error) {
+          alert(resp.error);
+        } else {
+          let places = [];
+          for (let key in resp) {
+            places.push({
+              ...resp[key],
+              image: {
+                uri: resp[key].image
+              },
+              key: key
+            });
+          }
+          dispatch(setPlaces(places));
         }
-        dispatch(setPlaces(places));
+        console.log(resp);
         dispatch(uiStopLoading());
-      });
+      })
+      .catch(error => alert(error));
   };
 };
 

@@ -1,16 +1,7 @@
-import placeImage from "../../assets/beautiful-place.jpg";
-import { DELETE_PLACE, SET_PLACES, REMOVE_PLACE } from "../actions/ActionTypes";
+import {SET_PLACES, REMOVE_PLACE } from "../actions/ActionTypes";
 
 const initialState = {
-  places: [{
-    key: "1",
-    name: "Tee",
-    image: placeImage,
-    location: {
-      latitude: 37.421998333333335,
-      longitude: -122.08400000000002
-    }
-  }]
+  places: []
 };
 
 const reducer = (state = initialState, action) => {
