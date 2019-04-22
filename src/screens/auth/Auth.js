@@ -16,7 +16,7 @@ import background from "../../assets/background.jpg";
 import { Dimensions } from "react-native";
 import validate from "../../utility/validation";
 import { connect } from "react-redux";
-import { tryAuth } from "../../store/actions/index";
+import { tryAuth, authAutoSignin } from "../../store/actions/index";
 
 class AuthScreen extends Component {
 
@@ -56,6 +56,9 @@ class AuthScreen extends Component {
     Dimensions.addEventListener("change", this.updateStyles);
   }
 
+  componentDidMount() {
+      this.props.onAutoSignin();
+  }
 
   authHandler = () => {
     const authData = {
@@ -84,9 +87,8 @@ class AuthScreen extends Component {
   };
 
   capitalize = (s) => {
-    return s.charAt(0).toUpperCase() + s.slice(1)
+    return s.charAt(0).toUpperCase() + s.slice(1);
   };
-
 
   updateInputState = (key, value) => {
 
@@ -155,8 +157,8 @@ class AuthScreen extends Component {
         !this.state.controls.email.isValid}
     >{this.capitalize(this.state.authMode)}</ButtonWithBackground>);
 
-    if(this.props.isLoading) {
-      submitButton = (<ActivityIndicator/>)
+    if (this.props.isLoading) {
+      submitButton = (<ActivityIndicator/>);
     }
 
     if (this.state.viewMode === "portrait") {
@@ -245,7 +247,8 @@ class AuthScreen extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onTryAuth: (authData, authMode) => dispatch(tryAuth(authData, authMode))
+    onTryAuth: (authData, authMode) => dispatch(tryAuth(authData, authMode)),
+    onAutoSignin: () => dispatch(authAutoSignin())
   };
 };
 
@@ -253,7 +256,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state => {
   return {
     isLoading: state.ui.isLoading
-  }
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AuthScreen);

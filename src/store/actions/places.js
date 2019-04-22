@@ -8,7 +8,7 @@ export const addPlace = (placeName, location, image) => {
       let authToken;
       dispatch(uiStartLoading());
       dispatch(authGetToken())
-        .catch(()=> console.log("No valid token"))
+        .catch(() => console.log("No valid token"))
         .then(token => {
           authToken = token;
           return fetch(" https://us-central1-rnplaces-ee771.cloudfunctions.net/storeImage", {
@@ -57,6 +57,7 @@ export const addPlace = (placeName, location, image) => {
           alert(err);
           console.log(err);
         });
+      dispatch(getPlaces());
     };
   }
 ;
