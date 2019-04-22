@@ -50,19 +50,20 @@ export const onAuth = (authData, authMode) => {
   };
 };
 
-export const authSetToken = (token) => {
+export const authSetToken = (token, expiryDate) => {
   return {
     type: AUTH_SET_TOKEN,
-    token: token
+    token: token,
+    expiryDate: expiryDate
   };
 };
-
 
 export const authGetToken = () => {
   return (dispatch, getState) => {
     const promise = new Promise((resolve, reject) => {
       let token = getState().auth.token;
-      if (!token) {
+      const expiryDate = getState().auth.expiryDate;
+      if (!token || new Date(expiryDate) <= new Date()) {
         AsyncStorage.getItem("ap:auth-token")
           .catch(err => reject())
           .then(tokenFromStorage => {
@@ -131,9 +132,9 @@ export const authGetToken = () => {
 
 const authStoreToken = (token, expiresIn, refreshToken) => {
   return dispatch => {
-    dispatch(authSetToken(token));
     const now = new Date();
     const expiryDate = now.getTime() + expiresIn * 1000;
+    dispatch(authSetToken(token, expiryDate));
     console.log(now, new Date(expiryDate));
     AsyncStorage.setItem("ap:auth-token", token);
     AsyncStorage.setItem("ap:auth-expiryDate", expiryDate.toString());
@@ -158,7 +159,7 @@ export const authClearStorage = () => {
   return dispatch => {
     AsyncStorage.removeItem("ap:auth-token");
     AsyncStorage.removeItem("ap:auth-expiryDate");
-   return AsyncStorage.removeItem("ap:auth-refreshToken");
+    return AsyncStorage.removeItem("ap:auth-refreshToken");
   };
 };
 
@@ -175,5 +176,5 @@ export const authLogout = () => {
 export const authRemoveToken = () => {
   return {
     type: AUTH_REMOVE_TOKEN
-  }
+  };
 };
