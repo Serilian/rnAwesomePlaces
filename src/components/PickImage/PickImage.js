@@ -32,6 +32,12 @@ class PickImage extends Component {
     });
   };
 
+  reset = () => {
+    this.setState({
+      pickedImage: null
+    })
+  };
+
   render() {
     return (
       <View style={styles.container}>

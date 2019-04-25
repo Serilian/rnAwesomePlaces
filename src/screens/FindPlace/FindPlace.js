@@ -23,6 +23,11 @@ class FindPlace extends Component {
   };
 
   onNavigatorEvent = event => {
+    if (event.type === "ScreenChangedEvent") {
+      if (event.id === "willAppear") {
+        this.props.onLoadPlaces();
+      }
+    }
     if (event.type === "NavBarButtonPress") {
       if (event.id === "sideDrawerToggle") {
         this.props.navigator.toggleDrawer({
@@ -31,11 +36,6 @@ class FindPlace extends Component {
       }
     }
   };
-
-  componentDidMount() {
-    this.props.onGetPlaces();
-  }
-
 
   itemSelectedHandler = (key) => {
     const findSelectedPlace = this.props.places.find(place => {
@@ -120,10 +120,10 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch)=> {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onGetPlaces: ()=> dispatch(getPlaces())
-  }
+    onLoadPlaces: () => dispatch(getPlaces())
+  };
 };
 
 const styles = StyleSheet.create({

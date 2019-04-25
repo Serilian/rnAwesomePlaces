@@ -1,7 +1,8 @@
-import {SET_PLACES, REMOVE_PLACE } from "../actions/ActionTypes";
+import { SET_PLACES, REMOVE_PLACE, PLACE_ADDED, START_ADD_PLACE } from "../actions/ActionTypes";
 
 const initialState = {
-  places: []
+  places: [],
+  placeAdded: false
 };
 
 const reducer = (state = initialState, action) => {
@@ -18,6 +19,17 @@ const reducer = (state = initialState, action) => {
         places: state.places.filter((place) => {
           return place.key !== action.key;
         })
+      };
+    case PLACE_ADDED:
+      return {
+        ...state,
+        placeAdded: true
+
+      };
+    case START_ADD_PLACE:
+      return {
+        ...state,
+        placeAdded: false
       };
     default:
       return state;

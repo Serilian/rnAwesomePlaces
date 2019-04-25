@@ -3,6 +3,8 @@ export const DELETE_PLACE = 'DELETE_PLACE';
 export const REMOVE_PLACE = 'REMOVE_PLACE';
 export const AUTH_SET_TOKEN = 'AUTH_SET_TOKEN';
 export const AUTH_REMOVE_TOKEN = 'AUTH_REMOVE_TOKEN';
+export const PLACE_ADDED = "PLACE_ADDED";
+export const START_ADD_PLACE = "START_ADD_PLACE";
 
 
 export const UI_START_LOADING = 'UI_START_LOADING';

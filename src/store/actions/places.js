@@ -1,6 +1,14 @@
-import { REMOVE_PLACE, SET_PLACES } from "./ActionTypes";
+import { PLACE_ADDED, REMOVE_PLACE, SET_PLACES, START_ADD_PLACE } from "./ActionTypes";
 import { uiStopLoading, uiStartLoading } from "./index";
 import { authGetToken } from "./index";
+
+
+export const startAddPlace = () => {
+  return {
+    type: START_ADD_PLACE
+  };
+};
+
 
 export const addPlace = (placeName, location, image) => {
     return dispatch => {
@@ -20,94 +28,60 @@ export const addPlace = (placeName, location, image) => {
             }
           });
         })
-        .then(resp => resp.json())
-        .then(resp => {
-          if (resp.error) {
-            console.log(error);
-            alert(resp.error);
+        .catch(err => {
+          console.log(err);
+          alert("Something went wrong, please try again!");
+          dispatch(uiStopLoading());
+        })
+        .then(res => {
+          if (res.ok) {
+            return res.json();
           } else {
-            const placeData = {
-              name: placeName,
-              location: location,
-              image: resp.imageUrl
-            };
-            console.log(placeData);
-            return fetch(`https://rnplaces-ee771.firebaseio.com/places.json?auth=${authToken}
+            throw new Error();
+          }
+        })
+        .then(parsedRes => {
+          const placeData = {
+            name: placeName,
+            location: location,
+            image: parsedRes.imageUrl,
+            imagePath: parsedRes.imagePath
+          };
+          console.log(placeData);
+          return fetch(`https://rnplaces-ee771.firebaseio.com/places.json?auth=${authToken}
             `, {
               method: "post",
               headers: {
                 "Content-Type": "application/json"
               },
               body: JSON.stringify(placeData)
-
-            }).catch(err => {
-              dispatch(uiStopLoading());
-              alert(err);
-              console.log(err);
-            })
-              .then(resp => resp.json())
-              .then(resp => {
-                console.log(resp);
-                dispatch(uiStopLoading());
-              });
+            }
+          );
+        })
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          } else {
+            throw new Error();
           }
         })
-        .catch(err => {
+        .then(parsedRes => {
+          console.log(parsedRes);
           dispatch(uiStopLoading());
-          alert(err);
+          dispatch(placeAdded());
+        })
+        .catch(err => {
           console.log(err);
+          alert("Something went wrong, please try again!");
+          dispatch(uiStopLoading());
         });
-      dispatch(getPlaces());
     };
   }
 ;
 
-export const deletePlace = (key) => {
-  return dispatch => {
-    dispatch(removePlace(key));
-    dispatch(authGetToken())
-      .then(token => {
-        dispatch(removePlace(key));
-        return fetch(`https://rnplaces-ee771.firebaseio.com/places/${key}.json?auth=${token}`, {
-          method: "delete",
-          headers: {
-            "Content-Type": "application/json"
-          }
-        });
-      })
-      .catch(() => {
-        dispatch(uiStopLoading());
-        alert("Auth error - no valid auth token");
-      })
-      .catch(err => {
-        dispatch(uiStopLoading());
-        alert(err);
-      })
-      .then(resp => resp.json())
-      .then(resp => {
-        if (resp.error) {
-          alert(resp.error);
-        } else {
-          console.log(resp);
-        }
-        dispatch(uiStopLoading());
-      });
-  };
-};
-
-
-export const removePlace = key => {
+export const placeAdded = () => {
   return {
-    type: REMOVE_PLACE,
-    key: key
-  };
-};
-
-
-export const setPlaces = (places) => {
-  return {
-    type: SET_PLACES,
-    places: places
+    type: PLACE_ADDED
   };
 };
 
@@ -138,13 +112,58 @@ export const getPlaces = () => {
               key: key
             });
           }
+          dispatch(uiStopLoading());
           dispatch(setPlaces(places));
         }
-        console.log(resp);
-        dispatch(uiStopLoading());
       })
-      .catch(error => alert(error));
+      .catch(err => {
+        alert("Something went wrong, sorry :/");
+        console.log(err);
+        dispatch(uiStopLoading());
+      });
   };
 };
 
+export const setPlaces = places => {
+  return {
+    type: SET_PLACES,
+    places: places
+  };
+};
 
+export const deletePlace = key => {
+  return dispatch => {
+    dispatch(authGetToken())
+      .catch(() => {
+        alert("No valid token found!");
+      })
+      .then(token => {
+        dispatch(removePlace(key));
+        return fetch(`https://rnplaces-ee771.firebaseio.com/places/${key}.json?auth=${token}`, {
+            method: "delete"
+          }
+        );
+      })
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw new Error();
+        }
+      })
+      .then(parsedRes => {
+        console.log("Done!");
+      })
+      .catch(err => {
+        alert("Something went wrong, sorry :/");
+        console.log(err);
+      });
+  };
+};
+
+export const removePlace = key => {
+  return {
+    type: REMOVE_PLACE,
+    key: key
+  };
+};

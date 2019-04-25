@@ -50,28 +50,37 @@ exports.storeImage = functions.https.onRequest((request, response) => {
           },
           (err, file) => {
             if (!err) {
-              return response.status(201).json({
+              response.status(201).json({
                 imageUrl:
                   "https://firebasestorage.googleapis.com/v0/b/" +
                   bucket.name +
                   "/o/" +
                   encodeURIComponent(file.name) +
                   "?alt=media&token=" +
-                  uuid
+                  uuid,
+                imagePath: "/places/" + uuid + ".jpg"
               });
             } else {
               console.log(err);
-              return response.status(500).json({ error: err });
+              response.status(500).json({ error: err });
             }
           }
         );
       })
       .catch(error => {
         console.log(error);
-        response.status(403).json({error: "Unauthorized"})
+        response.status(403).json({ error: "Unauthorized" });
       });
 
   });
+});
 
+exports.deleteImage = functions.database
+  .ref("/places/{placeId}")
+  .onDelete(snapshot => {
+  const placeData = snapshot.val();
+  const imagePath = placeData.imagePath;
+  const bucket = gcs.bucket("rnplaces-ee771.appspot.com");
+  return bucket.file(imagePath).delete();
 
 });
